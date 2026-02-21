@@ -1,8 +1,12 @@
 {
-    "name": "name",
-    "description": "description",
-    "authors": "author",
-    "version": "1.0.0",
-    "main": "pathToMain",
-    "dependencies": {}
+  "name": "invq-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "start": "node backend/src/server.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
 }
