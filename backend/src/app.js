@@ -15,9 +15,6 @@ app.use(helmet());
 app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 
-// connect DB
-connectDB();
-
 // routes
 app.get('/health', (req, res) => res.json({ ok: true }));
 

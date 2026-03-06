@@ -1,7 +1,16 @@
+require('dotenv').config();
+
 const app = require('./app');
-const http = require('http');
+const connectDB = require('./config/db');
+
 const PORT = process.env.PORT || 4000;
 
-const server = http.createServer(app);
+async function startServer(){
+    await connectDB();
 
-server.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
+    app.listen(PORT, () => {
+        console.log(`Backend running on http://localhost:${PORT}`);
+    })
+}
+
+startServer();
