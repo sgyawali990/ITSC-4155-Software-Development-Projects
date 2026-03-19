@@ -10,12 +10,12 @@ const alertRoutes = require('./routes/alerts.routes');
 
 const app = express();
 
-// middleware
 app.use(helmet());
 app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 
-// routes
+connectDB();
+
 app.get('/health', (req, res) => res.json({ ok: true }));
 
 app.use('/auth', authRoutes);

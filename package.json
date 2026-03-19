@@ -9,8 +9,11 @@
   "devDependencies": {
     "concurrently": "^8.2.0"
   },
-  "dependencies": {
-    "mongodb": "^7.1.0",
-    "mongoose": "^9.2.4"
-  }
+"dependencies": {
+  "bcryptjs": "^3.0.3",
+  "express": "^5.2.1",
+  "jsonwebtoken": "^9.0.3",
+  "mongodb": "^7.1.0",
+  "mongoose": "^9.3.1"
+}
 }
