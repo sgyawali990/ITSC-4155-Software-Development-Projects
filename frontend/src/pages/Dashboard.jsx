@@ -1,5 +1,6 @@
+import React from "react";
 import { useEffect, useState } from "react";
-import InventoryTable from "../components/inventory/InventoryTable";
+import InventoryTable from "../components/Inventory/InventoryTable";
 import AlertsPanel from "../components/Alerts/AlertsPanel";
 
 export default function Dashboard(){

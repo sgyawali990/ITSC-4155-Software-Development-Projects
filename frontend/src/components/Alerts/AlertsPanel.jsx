@@ -1,3 +1,5 @@
+import React, { useState } from "react";
+
 export default function AlertsPanel({ inventory }) {
   const lowStock = inventory.filter((i) => i.quantity <= 5);
   const expiringSoon = inventory.filter((i) => {
