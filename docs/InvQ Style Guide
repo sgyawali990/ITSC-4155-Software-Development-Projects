@@ -1,0 +1,63 @@
+##InvQ Technical UI Style Guide
+
+ This document defines the visual constraints for the InvQ React frontend to ensure consistency across all dashboard routes.
+
+ 1. Design Tokens (Tailwind Configuration)
+ All components must use these custom tokens. Avoid hardcoding hex values. 
+
+Colors
+| Name      | Hex       | CSS Class          | Usage                        |
+|      :--- | :---      | :---               | :---                         | 
+| Primary   | `#083344` | `bg-brand-dark`    | Sidebars, Page Headers       | 
+| Action    | `#22D3EE` | `bg-brand-action`  | Primary Buttons, Active Tabs | 
+| Accent    | `#0E7490` | `text-brand-accent`| Secondary Buttons, Links     | 
+| Mist      | `#CFFAFE` | `bg-brand-mist`    | Active state backgrounds     | 
+| Surface   | `#F8FAFC` | `bg-ui-page`       | Main content area background |
+
+  Typography 
+      -  Headings: `font-sans` | `font-bold` | `text-slate-900`
+      -  Body: `font-sans`     | `text-slate-700` 
+      -  Monospace:`font-mono` (Use for SKUs, Order IDs, and Port 4000/5173 logs)
+
+2. Iconography 
+  We use `lucide-react`. Do not import icons from other libraries to keep the bundle size small.
+     - Inventory: `<Package />` 
+     - Sales Orders: `<Handshake />` 
+     - Purchase Orders: `<ShoppingCart />` 
+     - Alerts: `<BellAlert />`
+
+ 3. Inventory Status Logic (QA Standards) When mapping inventory data from the backend, use these status indicators: 
+      - Healthy: `Current Qty > Reorder Point` -> Badge: Green 
+      - Warning: `Current Qty` within 10% of `Reorder Point` -> Badge: Amber
+      - Danger:  `Current Qty <= Reorder Point` -> Badge: Red (Trigger Alert) 
+
+4. Component Standards 
+    Buttons 
+      - Primary: `bg-brand-action` with white text and hover: `bg-brand-accent`.
+  	  - Secondary: Transparent with `border-brand-accent` and `text-brand-accent`. 
+
+    Form Inputs 
+      - Must include a `focus:ring-2 focus:ring-brand-action` state. 
+      - Must display a red error message if the backend returns a `400` or `500` status code.
+
+
+
+
+InvQ Technical Stack & Dependencies
+
+UI & Styling (Pending Implementation) 
+To match the approved wireframes, the following libraries must be installed in the `/frontend` directory: 
+
+1. Tailwind CSS (Styling) 
+  Used for the Deep Primary Teal (#083344) and Cyan designs. 
+    -Install: `npm install -D tailwindcss postcss autoprefixer && npx tailwindcss init -p` 
+
+ 2. Lucide-React (Icons)
+    Used for all dashboard and sidebar iconography. 
+      -Install: `npm install lucide-react.`
+
+Environment Setup 
+  Ensure your `.env` file in the backend contains:
+     - `MONGODB_URI`
+     - `JWT_SECRET`
+     - `PORT=4000`
