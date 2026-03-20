@@ -4,10 +4,10 @@ const {
   createAlert,
 } = require('../controllers/alerts.controller');
 
-// Public: just returns alerts
-router.get('/', getAlerts);
+const { protect } = require('../middleware/auth.middleware');
 
-// Later: authenticated route to add alerts
-router.post('/', createAlert);
+router.get('/', protect, getAlerts);
+
+router.post('/', protect, createAlert);
 
 module.exports = router;

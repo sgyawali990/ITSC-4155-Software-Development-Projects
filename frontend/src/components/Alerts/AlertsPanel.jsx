@@ -1,32 +1,35 @@
-import React, { useState } from "react";
+import React from "react";
 
 export default function AlertsPanel({ inventory }) {
-  const lowStock = inventory.filter((i) => i.quantity <= 5);
-  const expiringSoon = inventory.filter((i) => {
-    const expiryDate = new Date(i.expiration);
-    const today = new Date();
-    const diffDays = (expiryDate - today) / (1000 * 60 * 60 * 24);
-    return diffDays <= 7;
-  });
+  // Filter using itemName and reorderThreshold
+  const lowStock = inventory.filter((item) => item.quantity <= item.reorderThreshold);
 
   return (
-    <div className="alerts">
-      {lowStock.length > 0 && (
-        <div className="alert low-stock">
-          <h3>Low Stock</h3>
-          {lowStock.map((item) => (
-            <p key={item.id}>{item.name} ({item.quantity} left)</p>
-          ))}
-        </div>
-      )}
+    <div className="alerts-panel" style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '8px' }}>
+      <h2 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Critical Alerts</h2>
 
-      {expiringSoon.length > 0 && (
-        <div className="alert expiration">
-          <h3>Expiring Soon</h3>
-          {expiringSoon.map((item) => (
-            <p key={item.id}>{item.name} expires on {item.expiration}</p>
+      {lowStock.length > 0 ? (
+        <div className="alert-list">
+          {lowStock.map((item) => (
+            <div 
+              key={item._id} // Uses MongoDB _id
+              className="alert-item" 
+              style={{ 
+                backgroundColor: '#fff1f1', 
+                borderLeft: '4px solid red', 
+                padding: '10px', 
+                marginBottom: '10px' 
+              }}
+            >
+              <strong>{item.itemName}</strong> {/* Uses itemName */}
+              <p style={{ margin: '5px 0 0', fontSize: '0.9rem' }}>
+                Only <b>{item.quantity}</b> remaining (Threshold: {item.reorderThreshold})
+              </p>
+            </div>
           ))}
         </div>
+      ) : (
+        <p style={{ color: 'green' }}>All stock levels are healthy.</p>
       )}
     </div>
   );

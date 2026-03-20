@@ -1,9 +1,10 @@
 const express = require('express');
-const { getAlerts, createAlert } = require('../controllers/alerts.controller');
+const { register, login } = require('../controllers/auth.controller');
 
 const router = express.Router();
 
-router.get('/', getAlerts);
-router.post('/', createAlert);
+
+router.post('/register', register);
+router.post('/login', login);
 
 module.exports = router;

@@ -2,43 +2,34 @@ const mongoose = require('mongoose');
 
 const itemSchema = new mongoose.Schema(
   {
-    productName: {
+    itemName: {
       type: String,
       required: true,
       trim: true
     },
-    stockQuantity: {
+    quantity: {
       type: Number,
       default: 0
     },
-    stockThreshold: {
+    reorderThreshold: {
       type: Number,
       default: 0
     },
     category: {
-      type: String,
-      enum: [
-        'DRYFOOD',
-        'COLDFOOD',
-        'FROZENFOOD',
-        'MEDICINE',
-        'PERSONALCARE',
-        'CLEANINGSUPPLY',
-        'ELECTRONIC',
-        'APPAREL',
-        'TOYS'
-      ]
+      type: String
     },
-    store: {
+
+    updateLogs: [
+      {
+        change: Number,
+        date: { type: Date, default: Date.now }
+      }
+    ],
+
+    user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Store'
-    },
-    supplier: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Supplier'
-    },
-    expirationDate: {
-      type: Date
+      ref: 'User',
+      required: true
     }
   },
   {

@@ -201,3 +201,45 @@ button {
   background: #94a3b8;
   border-radius: 4px;
 }
+
+.inventory-table td {
+  cursor: cell;
+  transition: background-color 0.1s;
+  position: relative;
+}
+
+.inventory-table td:hover {
+  background-color: #f8fafc !important;
+  outline: 1px solid #cbd5e1;
+  z-index: 1;
+}
+
+.inventory-table td input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 2px solid #2563eb;
+  padding: 10px;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: inherit;
+  background: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+}
+
+.inventory-table tr.low-stock-row {
+  background-color: #fff1f2;
+}
+
+.inventory-table tr.low-stock-row:hover {
+  background-color: #ffe4e6 !important;
+}
+
+.inventory-table input::-webkit-outer-spin-button,
+.inventory-table input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

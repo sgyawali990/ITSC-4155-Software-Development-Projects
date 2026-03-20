@@ -24,7 +24,7 @@ export default function RegisterUser(){
     } else {
       const errorData = await res.json();
       console.error("Registration Error:", errorData);
-      alert(errorData.message || "Registration failed");
+      alert(errorData.error || errorData.message || "Registration failed");
     }
   };
 
