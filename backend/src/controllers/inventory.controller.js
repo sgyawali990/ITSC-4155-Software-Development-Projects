@@ -1,4 +1,12 @@
 const Item = require('../models/Item');
+const Alert = require('../models/Alert');
+const User = require('../models/User');
+const { sendLowStockAlert, sendOutOfStockAlert } = require('../utils/email');
+
+const getAdminEmails = async () => {
+  const admins = await User.find({ role: { $in: ['ADMIN', 'OWNER'] } }).select('email');
+  return admins.map(u => u.email).join(", ");
+};
 
 const validateItemInput = ({ itemName, quantity, reorderThreshold }) => {
   if (!itemName || typeof itemName !== 'string' || itemName.trim() === '') {
@@ -21,6 +29,17 @@ const validateItemInput = ({ itemName, quantity, reorderThreshold }) => {
   return null;
 };
 
+const checkAndNotify = async (item) => {
+  const adminEmails = await getAdminEmails();
+  if (item.quantity === 0) {
+    await sendOutOfStockAlert(adminEmails, item.itemName);
+    await Alert.create({ itemId: item._id, message: `${item.itemName} is out of stock.` });
+  } else if (item.quantity <= item.reorderThreshold) {
+    await sendLowStockAlert(adminEmails, item.itemName, item.quantity);
+    await Alert.create({ itemId: item._id, message: `${item.itemName} is low on stock, current quantity: ${item.quantity}`});
+  }
+};
+
 const createItem = async (req, res) => {
   try {
     const { itemName, quantity, reorderThreshold } = req.body;
@@ -36,6 +55,8 @@ const createItem = async (req, res) => {
       reorderThreshold: Number(reorderThreshold),
       user: req.user.id
     });
+
+    await checkAndNotify(item);
 
     return res.status(201).json(item);
   } catch (error) {
@@ -92,6 +113,8 @@ const updateItem = async (req, res) => {
     item.reorderThreshold = Number(reorderThreshold);
 
     const updatedItem = await item.save();
+
+    await checkAndNotify(updatedItem);
 
     return res.status(200).json(updatedItem);
   } catch (error) {
