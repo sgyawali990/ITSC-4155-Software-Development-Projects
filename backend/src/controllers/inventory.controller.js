@@ -126,48 +126,29 @@ const updateItem = async (req, res) => {
   try {
     const { itemName, quantity, reorderThreshold } = req.body;
 
-    // Validation - Ensure we have clean data
+    // Basic Validation
     if (!itemName || isNaN(quantity) || isNaN(reorderThreshold)) {
       return res.status(400).json({ message: "Invalid input values" });
     }
 
+    // Find the item
     const item = await Item.findOne({ _id: req.params.id, user: req.user.id });
     if (!item) return res.status(404).json({ message: "Item not found" });
 
-    const store = await Store.findOne({ owner: req.user.id });
-    const mode = store?.updateMode || "MANUAL";
+    // Apply changes (This is now strictly for LIVE updates)
+    item.itemName = itemName.trim();
+    item.quantity = Number(quantity);
+    item.reorderThreshold = Number(reorderThreshold);
+    
+    // Clear logs since this is a manual override/live edit
+    item.updateLogs = []; 
 
-    if (!item.updateLogs) item.updateLogs = [];
+    await item.save();
+    
+    // Trigger Alerts
+    await checkAndNotify(item);
 
-    if (mode === "MANUAL") {
-      // MANUAL MODE: Update stock immediately
-      item.itemName = itemName.trim();
-      item.quantity = Number(quantity);
-      item.reorderThreshold = Number(reorderThreshold);
-      
-      // Optional history log for record keeping
-      item.updateLogs.push({ change: 0, note: "Manual Edit" }); 
-
-      await checkAndNotify(item);
-    } else {
-      // EOD MODE: Calculate change without moving stock yet
-      const targetQty = Number(quantity);
-      
-      const change = targetQty - item.quantity;
-
-      item.updateLogs = [{ 
-        change, 
-        date: new Date(),
-        note: `Pending update to ${targetQty}` 
-      }];
-
-      // Always update name and threshold immediately even in EOD mode
-      item.itemName = itemName.trim();
-      item.reorderThreshold = Number(reorderThreshold);
-    }
-
-    const updatedItem = await item.save();
-    return res.status(200).json(updatedItem);
+    return res.status(200).json(item);
 
   } catch (error) {
     console.error("UPDATE ERROR:", error);
@@ -189,22 +170,42 @@ const deleteItem = async (req, res) => {
 // EOD Apply Function
 const applyEndOfDayUpdates = async (req, res) => {
   try {
+    const { pendingChanges } = req.body;
+
+    if (!pendingChanges) {
+      return res.status(400).json({ error: "No pending changes provided" });
+    }
+
     const items = await Item.find({ user: req.user.id });
 
     for (let item of items) {
-      const totalChange = item.updateLogs.reduce((sum, log) => sum + log.change, 0);
+      const changes = pendingChanges[item._id.toString()];
 
-      if (totalChange !== 0) {
-        item.quantity += totalChange;
+      if (changes) {
+        if (changes.quantity !== undefined) {
+          item.quantity = changes.quantity;
+        }
+
+        if (changes.reorderThreshold !== undefined) {
+          item.reorderThreshold = changes.reorderThreshold;
+        }
+
+        if (changes.itemName !== undefined) {
+          item.itemName = changes.itemName;
+        }
+
         item.updateLogs = [];
+
         await item.save();
         await checkAndNotify(item);
       }
     }
 
-    res.status(200).json({ message: 'End-of-day updates applied' });
+    res.status(200).json({ message: "EOD updates applied successfully" });
+
   } catch (err) {
-    res.status(500).json({ error: 'Failed to apply EOD updates' });
+    console.error("EOD APPLY ERROR:", err);
+    res.status(500).json({ error: "Failed to apply EOD updates" });
   }
 };
 
