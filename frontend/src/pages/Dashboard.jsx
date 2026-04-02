@@ -6,26 +6,30 @@ export default function Dashboard() {
   const [inventory, setInventory] = useState([]);
   const [mode, setMode] = useState("MANUAL");
   const [loading, setLoading] = useState(true);
-  
-  // State lifted from InventoryTable to Dashboard
   const [pendingChanges, setPendingChanges] = useState({});
+  const [reorderSuggestions, setReorderSuggestions] = useState([]);
 
   const token = localStorage.getItem("invq_token");
 
   const fetchData = async () => {
     try {
       const invRes = await fetch("http://localhost:4000/inventory", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       const invData = await invRes.json();
       if (Array.isArray(invData)) setInventory([...invData]);
 
       const storeRes = await fetch("http://localhost:4000/store", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       const storeData = await storeRes.json();
       if (storeData?.updateMode) setMode(storeData.updateMode);
 
+      const reorderRes = await fetch("http://localhost:4000/inventory/reorder-suggestions", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const reorderData = await reorderRes.json();
+      if (Array.isArray(reorderData)) setReorderSuggestions(reorderData);
     } catch (err) {
       console.error("Dashboard Sync Error:", err);
     } finally {
@@ -38,24 +42,23 @@ export default function Dashboard() {
     try {
       const res = await fetch("http://localhost:4000/store/update-mode", {
         method: "PATCH",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}` 
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ updateMode: newMode })
+        body: JSON.stringify({ updateMode: newMode }),
       });
 
       if (res.ok) {
         setMode(newMode);
-        fetchData(); 
+        fetchData();
       }
     } catch (err) {
       console.error("Failed to switch modes:", err);
     }
   };
 
-  // applyEOD now uses the state directly
-  const applyEOD = async () => { 
+  const applyEOD = async () => {
     if (!window.confirm("Sync all pending changes to live inventory?")) return;
 
     try {
@@ -63,23 +66,19 @@ export default function Dashboard() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-
-        body: JSON.stringify({ pendingChanges }) 
+        body: JSON.stringify({ pendingChanges }),
       });
 
       if (!res.ok) throw new Error("Sync failed");
 
       alert("Inventory Synced!");
-
-      // Clear the state directly here
       setPendingChanges({});
 
       setTimeout(() => {
         fetchData();
       }, 50);
-
     } catch (err) {
       console.error("EOD Apply Error:", err);
       alert("Error syncing: Check console.");
@@ -94,38 +93,62 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      <div className="dashboard-header" style={{ marginBottom: '20px', gridColumn: '1 / span 2', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div
+        className="dashboard-header"
+        style={{
+          marginBottom: "20px",
+          gridColumn: "1 / span 2",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <div>
           <h1>Store Dashboard</h1>
-          <p style={{ margin: 0, color: '#64748b' }}>Manage your workspace items</p>
-          <p style={{ margin: 0, fontWeight: '500' }}>
-            Mode: 
-            <span style={{ color: mode === "MANUAL" ? "#10b981" : "#f59e0b", marginLeft: '6px' }}>
-              {mode === "MANUAL" ? "LIVE" : "EOD"} 
+          <p style={{ margin: 0, color: "#64748b" }}>Manage your workspace items</p>
+          <p style={{ margin: 0, fontWeight: "500" }}>
+            Mode:
+            <span
+              style={{
+                color: mode === "MANUAL" ? "#10b981" : "#f59e0b",
+                marginLeft: "6px",
+              }}
+            >
+              {mode === "MANUAL" ? "LIVE" : "EOD"}
             </span>
           </p>
         </div>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <button 
+
+        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+          <button
             onClick={toggleMode}
             style={{
-              padding: '8px 16px', borderRadius: '6px', border: '1px solid #cbd5e1',
-              background: 'white', cursor: 'pointer', fontWeight: '500',
-              display: 'flex', alignItems: 'center', gap: '8px'
+              padding: "8px 16px",
+              borderRadius: "6px",
+              border: "1px solid #cbd5e1",
+              background: "white",
+              cursor: "pointer",
+              fontWeight: "500",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
             }}
           >
             <span style={{ color: mode === "MANUAL" ? "#10b981" : "#f59e0b" }}>●</span>
             {mode === "MANUAL" ? "Switch to EOD Mode" : "Switch to Live Mode"}
           </button>
 
-          <button 
+          <button
             onClick={applyEOD}
             disabled={mode === "MANUAL" || Object.keys(pendingChanges).length === 0}
-            style={{ 
-              background: mode === "MANUAL" ? '#94a3b8' : '#1e293b',
-              color: 'white', padding: '8px 16px', borderRadius: '6px', border: 'none',
-              cursor: mode === "MANUAL" ? 'not-allowed' : 'pointer', fontWeight: '600'
+            style={{
+              background: mode === "MANUAL" ? "#94a3b8" : "#1e293b",
+              color: "white",
+              padding: "8px 16px",
+              borderRadius: "6px",
+              border: "none",
+              cursor: mode === "MANUAL" ? "not-allowed" : "pointer",
+              fontWeight: "600",
             }}
           >
             Sync All Changes
@@ -133,10 +156,30 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {reorderSuggestions.length > 0 && (
+        <div
+          style={{
+            marginBottom: "20px",
+            padding: "16px",
+            background: "#fff7ed",
+            border: "1px solid #fdba74",
+            borderRadius: "8px",
+          }}
+        >
+          <h3 style={{ marginTop: 0 }}>Reorder Suggestions</h3>
+          {reorderSuggestions.map((item) => (
+            <div key={item.itemId} style={{ marginBottom: "10px" }}>
+              <strong>{item.itemName}</strong> — current stock: {item.quantity}, threshold:{" "}
+              {item.reorderThreshold}, suggested reorder: {item.suggestedReorder}
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="inventory-section">
-        <InventoryTable 
-          inventory={inventory} 
-          setInventory={setInventory} 
+        <InventoryTable
+          inventory={inventory}
+          setInventory={setInventory}
           mode={mode}
           pendingChanges={pendingChanges}
           setPendingChanges={setPendingChanges}

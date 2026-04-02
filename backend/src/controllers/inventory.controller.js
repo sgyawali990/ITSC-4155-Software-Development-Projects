@@ -209,6 +209,28 @@ const applyEndOfDayUpdates = async (req, res) => {
   }
 };
 
+const getReorderSuggestions = async (req, res) => {
+  try {
+    const items = await Item.find({ user: req.user.id });
+
+    const suggestions = items
+      .filter((item) => item.quantity <= item.reorderThreshold)
+      .map((item) => ({
+        itemId: item._id,
+        itemName: item.name,
+        quantity: item.quantity,
+        reorderThreshold: item.reorderThreshold,
+        suggestedReorder: Math.max(item.reorderThreshold * 2 - item.quantity, 1),
+      }));
+
+    res.status(200).json(suggestions);
+  } catch (err) {
+    console.error("Reorder suggestions error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+
 // Export list
 module.exports = {
   createItem,
@@ -216,5 +238,6 @@ module.exports = {
   getItemById,
   updateItem,
   deleteItem,
-  applyEndOfDayUpdates
+  applyEndOfDayUpdates,
+  getReorderSuggestions
 };

@@ -14,16 +14,16 @@ import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import CreateProduct from "./pages/CreateProduct";
 import CreateStore from "./pages/CreateStore";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 import "./index.css";
 
-// A utility to check if a user is authenticated
 const isLoggedIn = () => {
   const token = localStorage.getItem("invq_token");
   return !!token;
 };
 
-// ProtectedRoute redirects to login if not authenticated
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
   if (!isLoggedIn()) {
@@ -35,11 +35,11 @@ const ProtectedRoute = ({ children }) => {
 const App = () => (
   <BrowserRouter>
     <Routes>
-      {/* Public routes */}
       <Route path="/" element={<Login />} />
       <Route path="/register" element={<RegisterUser />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-      {/* Protected routes */}
       <Route
         path="/dashboard"
         element={
@@ -73,7 +73,6 @@ const App = () => (
         }
       />
 
-      {/* Catch-all route */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   </BrowserRouter>

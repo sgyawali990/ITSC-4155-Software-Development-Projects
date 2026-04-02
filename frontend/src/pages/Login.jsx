@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const [username, setUsername] = useState(""); 
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
@@ -10,11 +10,10 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      // 1. Authenticate
       const res = await fetch("http://localhost:4000/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }), 
+        body: JSON.stringify({ username, password }),
       });
 
       let data = {};
@@ -25,27 +24,24 @@ export default function Login() {
       }
 
       if (res.ok && data.token) {
-        // 2. Save Token
         const token = data.token;
         localStorage.setItem("invq_token", token);
 
-        // 3. Check if User needs Onboarding
         try {
           const resInventory = await fetch("http://localhost:4000/inventory", {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           });
           const items = await resInventory.json();
 
           if (items.length === 0) {
-            navigate("/create-store"); // Send to templates page
+            navigate("/create-store");
           } else {
-            navigate("/dashboard"); // Go straight to data
+            navigate("/dashboard");
           }
         } catch (invError) {
           console.error("Inventory check failed, defaulting to dashboard");
           navigate("/dashboard");
         }
-        
       } else {
         alert(data.error || "Login failed");
       }
@@ -75,7 +71,18 @@ export default function Login() {
         />
         <button type="submit">Login</button>
       </form>
-      <p onClick={() => navigate("/register")} style={{cursor: 'pointer', color: 'blue', textDecoration: 'underline'}}>
+
+      <p
+        onClick={() => navigate("/forgot-password")}
+        style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+      >
+        Forgot Password?
+      </p>
+
+      <p
+        onClick={() => navigate("/register")}
+        style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+      >
         Create Account
       </p>
     </div>
