@@ -155,27 +155,7 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
-
-      {reorderSuggestions.length > 0 && (
-        <div
-          style={{
-            marginBottom: "20px",
-            padding: "16px",
-            background: "#fff7ed",
-            border: "1px solid #fdba74",
-            borderRadius: "8px",
-          }}
-        >
-          <h3 style={{ marginTop: 0 }}>Reorder Suggestions</h3>
-          {reorderSuggestions.map((item) => (
-            <div key={item.itemId} style={{ marginBottom: "10px" }}>
-              <strong>{item.itemName}</strong> — current stock: {item.quantity}, threshold:{" "}
-              {item.reorderThreshold}, suggested reorder: {item.suggestedReorder}
-            </div>
-          ))}
-        </div>
-      )}
-
+      
       <div className="inventory-section">
         <InventoryTable
           inventory={inventory}
