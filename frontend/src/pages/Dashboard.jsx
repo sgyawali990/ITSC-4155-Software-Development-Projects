@@ -9,6 +9,16 @@ export default function Dashboard() {
   const [pendingChanges, setPendingChanges] = useState({});
   const [reorderSuggestions, setReorderSuggestions] = useState([]);
 
+  const totalItems = inventory.length;
+
+const lowStockCount = inventory.filter(
+  (item) => item.quantity <= item.reorderThreshold
+).length;
+
+const totalQuantity = inventory.reduce(
+  (sum, item) => sum + item.quantity,
+  0
+);
   const token = localStorage.getItem("invq_token");
 
   const fetchData = async () => {
@@ -90,105 +100,128 @@ export default function Dashboard() {
   }, []);
 
   if (loading) return <div className="dashboard">Initializing InvQ...</div>;
+return (
+  <div className="dashboard">
 
-  return (
-    <div className="dashboard">
-      <div
-        className="dashboard-header"
-        style={{
-          marginBottom: "20px",
-          gridColumn: "1 / span 2",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <h1>Store Dashboard</h1>
-          <p style={{ margin: 0, color: "#64748b" }}>Manage your workspace items</p>
-          <p style={{ margin: 0, fontWeight: "500" }}>
-            Mode:
-            <span
-              style={{
-                color: mode === "MANUAL" ? "#10b981" : "#f59e0b",
-                marginLeft: "6px",
-              }}
-            >
-              {mode === "MANUAL" ? "LIVE" : "EOD"}
-            </span>
-          </p>
-        </div>
+    <div
+      className="dashboard-header"
+      style={{
+        marginBottom: "20px",
+        gridColumn: "1 / span 2",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      <div>
+        <h1>Store Dashboard</h1>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-          <button
-            onClick={toggleMode}
+        <p style={{ margin: 0, color: "#64748b" }}>
+          Manage your workspace items
+        </p>
+
+        <p style={{ margin: 0, fontWeight: "500" }}>
+          Mode:
+          <span
             style={{
-              padding: "8px 16px",
-              borderRadius: "6px",
-              border: "1px solid #cbd5e1",
-              background: "white",
-              cursor: "pointer",
-              fontWeight: "500",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
+              color: mode === "MANUAL" ? "#10b981" : "#f59e0b",
+              marginLeft: "6px",
             }}
           >
-            <span style={{ color: mode === "MANUAL" ? "#10b981" : "#f59e0b" }}>●</span>
-            {mode === "MANUAL" ? "Switch to EOD Mode" : "Switch to Live Mode"}
-          </button>
-
-          <button
-            onClick={applyEOD}
-            disabled={mode === "MANUAL" || Object.keys(pendingChanges).length === 0}
-            style={{
-              background: mode === "MANUAL" ? "#94a3b8" : "#1e293b",
-              color: "white",
-              padding: "8px 16px",
-              borderRadius: "6px",
-              border: "none",
-              cursor: mode === "MANUAL" ? "not-allowed" : "pointer",
-              fontWeight: "600",
-            }}
-          >
-            Sync All Changes
-          </button>
-        </div>
+            {mode === "MANUAL" ? "LIVE" : "EOD"}
+          </span>
+        </p>
       </div>
 
-      {reorderSuggestions.length > 0 && (
-        <div
+      <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+        <button
+          onClick={toggleMode}
           style={{
-            marginBottom: "20px",
-            padding: "16px",
-            background: "#fff7ed",
-            border: "1px solid #fdba74",
-            borderRadius: "8px",
+            padding: "8px 16px",
+            borderRadius: "6px",
+            border: "1px solid #cbd5e1",
+            background: "white",
+            cursor: "pointer",
+            fontWeight: "500",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
           }}
         >
-          <h3 style={{ marginTop: 0 }}>Reorder Suggestions</h3>
-          {reorderSuggestions.map((item) => (
-            <div key={item.itemId} style={{ marginBottom: "10px" }}>
-              <strong>{item.itemName}</strong> — current stock: {item.quantity}, threshold:{" "}
-              {item.reorderThreshold}, suggested reorder: {item.suggestedReorder}
-            </div>
-          ))}
-        </div>
-      )}
+          <span style={{ color: mode === "MANUAL" ? "#10b981" : "#f59e0b" }}>●</span>
+          {mode === "MANUAL" ? "Switch to EOD Mode" : "Switch to Live Mode"}
+        </button>
 
-      <div className="inventory-section">
-        <InventoryTable
-          inventory={inventory}
-          setInventory={setInventory}
-          mode={mode}
-          pendingChanges={pendingChanges}
-          setPendingChanges={setPendingChanges}
-        />
-      </div>
-
-      <div className="alerts-section">
-        <AlertsPanel inventory={inventory} />
+        <button
+          onClick={applyEOD}
+          disabled={mode === "MANUAL" || Object.keys(pendingChanges).length === 0}
+          style={{
+            background: mode === "MANUAL" ? "#94a3b8" : "#1e293b",
+            color: "white",
+            padding: "8px 16px",
+            borderRadius: "6px",
+            border: "none",
+            cursor: mode === "MANUAL" ? "not-allowed" : "pointer",
+            fontWeight: "600",
+          }}
+        >
+          Sync All Changes
+        </button>
       </div>
     </div>
-  );
+
+    <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
+      <div className="card">
+        <h3>Total Items</h3>
+        <p>{totalItems}</p>
+      </div>
+
+      <div className="card">
+        <h3>Low Stock</h3>
+        <p style={{ color: "#ef4444" }}>{lowStockCount}</p>
+      </div>
+
+      <div className="card">
+        <h3>Total Quantity</h3>
+        <p>{totalQuantity}</p>
+      </div>
+    </div>
+
+    {reorderSuggestions.length > 0 && (
+      <div
+        style={{
+          marginBottom: "20px",
+          padding: "16px",
+          background: "#fff7ed",
+          border: "1px solid #fdba74",
+          borderRadius: "8px",
+        }}
+      >
+        <h3 style={{ marginTop: 0 }}>Reorder Suggestions</h3>
+
+        {reorderSuggestions.map((item) => (
+          <div key={item.itemId} style={{ marginBottom: "10px" }}>
+            <strong>{item.itemName}</strong> — current stock: {item.quantity}, threshold:{" "}
+            {item.reorderThreshold}, suggested reorder: {item.suggestedReorder}
+          </div>
+        ))}
+      </div>
+    )}
+
+    <div className="inventory-section">
+      <InventoryTable
+        inventory={inventory}
+        setInventory={setInventory}
+        mode={mode}
+        pendingChanges={pendingChanges}
+        setPendingChanges={setPendingChanges}
+      />
+    </div>
+
+    <div className="alerts-section">
+      <AlertsPanel inventory={inventory} />
+    </div>
+
+  </div>
+);
 }

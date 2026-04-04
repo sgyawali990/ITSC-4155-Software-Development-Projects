@@ -243,3 +243,22 @@ button {
   -webkit-appearance: none;
   margin: 0;
 }
+.card {
+  flex: 1;
+  background: white;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.card p {
+  margin: 8px 0 0;
+  font-size: 22px;
+  font-weight: bold;
+}

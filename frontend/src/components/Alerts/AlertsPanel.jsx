@@ -1,35 +1,41 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import AlertsPanel from "../components/AlertsPanel";
 
-export default function AlertsPanel({ inventory }) {
-  // Filter using itemName and reorderThreshold
-  const lowStock = inventory.filter((item) => item.quantity <= item.reorderThreshold);
+export default function Alerts() {
+  const [inventory, setInventory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchInventory = async () => {
+      try {
+        setLoading(true);
+
+        const res = await axios.get("/api/inventory");
+
+        setInventory(res.data);
+        setError(null);
+      } catch (err) {
+        setError("Failed to load alerts data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInventory();
+  }, []);
 
   return (
-    <div className="alerts-panel" style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '8px' }}>
-      <h2 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Critical Alerts</h2>
+    <div style={{ padding: "20px" }}>
+      <h1 style={{ marginBottom: "20px" }}>Alerts Page</h1>
 
-      {lowStock.length > 0 ? (
-        <div className="alert-list">
-          {lowStock.map((item) => (
-            <div 
-              key={item._id} // Uses MongoDB _id
-              className="alert-item" 
-              style={{ 
-                backgroundColor: '#fff1f1', 
-                borderLeft: '4px solid red', 
-                padding: '10px', 
-                marginBottom: '10px' 
-              }}
-            >
-              <strong>{item.itemName}</strong> {/* Uses itemName */}
-              <p style={{ margin: '5px 0 0', fontSize: '0.9rem' }}>
-                Only <b>{item.quantity}</b> remaining (Threshold: {item.reorderThreshold})
-              </p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p style={{ color: 'green' }}>All stock levels are healthy.</p>
+      {loading && <p>Loading alerts...</p>}
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {!loading && !error && (
+        <AlertsPanel inventory={inventory} />
       )}
     </div>
   );
