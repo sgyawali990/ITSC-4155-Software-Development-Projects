@@ -8,6 +8,7 @@ import {
   useLocation,
 } from "react-router-dom";
 
+
 import Login from "./pages/Login";
 import RegisterUser from "./pages/RegisterUser";
 import Dashboard from "./pages/Dashboard";
@@ -16,13 +17,17 @@ import CreateProduct from "./pages/CreateProduct";
 import CreateStore from "./pages/CreateStore";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import AlertsPanel from "./components/Alerts/AlertsPanel";
+
+
+import Layout from "./components/layout"; 
 
 import "./index.css";
 
 const isLoggedIn = () => {
-  const token = localStorage.getItem("invq_token");
-  return !!token;
+  return !!localStorage.getItem("invq_token");
 };
+
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -32,50 +37,78 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-const App = () => (
-  <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/register" element={<RegisterUser />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password/:token" element={<ResetPassword />} />
+const App = () => {
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <Settings />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/create-product"
-        element={
-          <ProtectedRoute>
-            <CreateProduct />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/create-store"
-        element={
-          <ProtectedRoute>
-            <CreateStore />
-          </ProtectedRoute>
-        }
-      />
+  const handleStoreSelection = (type) => {
+    console.log("Template selected in Main:", type);
+    localStorage.setItem("invq_store_type", type);
+    window.location.href = "/dashboard";
+  };
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  </BrowserRouter>
-);
+  return (
+    <BrowserRouter>
+      <Routes>
+        
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<RegisterUser />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+       
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Layout><Dashboard /></Layout>
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
+          path="/inventory"
+          element={
+            <ProtectedRoute>
+              <Layout><CreateProduct /></Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Layout><Settings /></Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        
+        <Route
+          path="/create-store"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CreateStore onCreateStore={handleStoreSelection} />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/alerts"
+          element={
+            <ProtectedRoute>
+              <Layout><AlertsPanel /></Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
