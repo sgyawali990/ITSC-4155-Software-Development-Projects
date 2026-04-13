@@ -28,21 +28,7 @@ export default function Login() {
         localStorage.setItem("invq_user_name", username);
         localStorage.setItem("invq_user_email", data.user?.email || "");
 
-        // Check if the user has a store/items already
-        try {
-          const resInventory = await fetch("http://localhost:4000/inventory", {
-            headers: { Authorization: `Bearer ${data.token}` },
-          });
-          const items = await resInventory.json();
-
-          if (items.length === 0) {
-            navigate("/create-store");
-          } else {
-            navigate("/dashboard");
-          }
-        } catch (invError) {
-          navigate("/dashboard");
-        }
+        navigate("/dashboard");
       } else {
         alert(data.error || "Login failed");
       }

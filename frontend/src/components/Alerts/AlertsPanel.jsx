@@ -11,7 +11,7 @@ export default function Alerts() {
   const [refreshing, setRefreshing] = useState(false); // For button feedback
   const token = localStorage.getItem("invq_token");
 
-  // 1. PULL FETCH INTO A FUNCTION (Instructions Step 1)
+  // 1. PULL FETCH INTO A FUNCTION 
   const fetchInventory = async () => {
     setRefreshing(true);
     try {
@@ -28,7 +28,7 @@ export default function Alerts() {
     }
   };
 
-  // 2. KEEP USEEFFECT FOR INITIAL LOAD (Instructions Step 2)
+  // 2. KEEP USEEFFECT FOR INITIAL LOAD
   useEffect(() => {
     fetchInventory();
   }, [token]);
@@ -44,7 +44,7 @@ export default function Alerts() {
   return (
     <div style={{ padding: "40px", maxWidth: "1200px", margin: "0 auto", fontFamily: 'Inter, sans-serif' }}>
       
-      {/* 3. UPDATED HEADER WITH REFRESH BUTTON (Instructions Step 3) */}
+      {/* 3. UPDATED HEADER WITH REFRESH BUTTON */}
       <header style={{ 
         marginBottom: "32px", 
         display: 'flex', 

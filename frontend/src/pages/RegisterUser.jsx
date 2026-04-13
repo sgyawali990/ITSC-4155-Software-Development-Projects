@@ -72,7 +72,7 @@ export default function RegisterUser() {
 
         <h2 style={{ color: "#0a3d34", margin: "0 0 10px 0" }}>Create Account</h2>
         <p style={{ color: "#64748b", marginBottom: "30px", fontSize: "0.9rem" }}>
-          Join InvQuery to start managing your stock
+          Join InvQ to start managing your stock
         </p>
 
         <form onSubmit={handleRegister}>

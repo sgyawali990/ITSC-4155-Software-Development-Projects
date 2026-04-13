@@ -13,7 +13,6 @@ import RegisterUser from "./pages/RegisterUser";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import CreateProduct from "./pages/CreateProduct";
-import CreateStore from "./pages/CreateStore";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import AlertsPanel from "./components/Alerts/AlertsPanel";
@@ -36,13 +35,6 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const App = () => {
-
-  const handleStoreSelection = (type) => {
-    console.log("Template selected in Main:", type);
-    localStorage.setItem("invq_store_type", type);
-    window.location.href = "/dashboard";
-  };
-
   return (
     <BrowserRouter>
       <Routes>
@@ -79,16 +71,6 @@ const App = () => {
           }
         />
 
-        <Route
-          path="/create-store"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <CreateStore onCreateStore={handleStoreSelection} />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
 
         <Route
           path="/alerts"

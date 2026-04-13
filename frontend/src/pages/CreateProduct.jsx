@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Package, Plus, Minus, AlertCircle, RefreshCw, LayoutDashboard, 
-  Search, Download, Printer, ExternalLink, Trash2 
+import {
+  Package, Plus, Minus, AlertCircle, RefreshCw, LayoutDashboard,
+  Search, Download, Printer, ExternalLink, Trash2
 } from "lucide-react";
 import AlertsPanel from "../components/Alerts/AlertsPanel";
 
-const BRAND_DARK = "#083344"; 
+const BRAND_DARK = "#083344";
 const BRAND_ACTION = "#22D3EE";
 const BRAND_MIST = "#CFFAFE";
 
@@ -14,7 +14,7 @@ export default function CreateProduct() {
   const [inventory, setInventory] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  
+
   const [editingCell, setEditingCell] = useState(null);
   const [editValue, setEditValue] = useState("");
 
@@ -28,7 +28,7 @@ export default function CreateProduct() {
       });
       const data = await res.json();
       if (Array.isArray(data)) setInventory(data);
-    } catch (err) { console.error("Fetch Error:", err); } 
+    } catch (err) { console.error("Fetch Error:", err); }
     finally { setLoading(false); }
   };
 
@@ -41,14 +41,14 @@ export default function CreateProduct() {
     // Support temp items (Add Row logic)
     if (itemId.toString().startsWith("temp-")) {
       if (field === "itemName" && input === "") return;
-      
+
       const res = await fetch("http://localhost:4000/inventory", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ 
-            itemName: field === "itemName" ? input : "",
-            quantity: field === "quantity" ? Number(input) : 0, 
-            reorderThreshold: field === "reorderThreshold" ? Number(input) : 0
+        body: JSON.stringify({
+          itemName: field === "itemName" ? input : "",
+          quantity: field === "quantity" ? Number(input) : 0,
+          reorderThreshold: field === "reorderThreshold" ? Number(input) : 0
         }),
       });
       if (res.ok) {
@@ -134,21 +134,21 @@ export default function CreateProduct() {
   };
 
   const safeInventory = Array.isArray(inventory) ? inventory : [];
-  const filteredInventory = safeInventory.filter(item => 
+  const filteredInventory = safeInventory.filter(item =>
     (item.itemName || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
-  const lowStockCount = safeInventory.filter(item => 
-    item.itemName && 
+
+  const lowStockCount = safeInventory.filter(item =>
+    item.itemName &&
     Number(item.quantity || 0) <= Number(item.reorderThreshold || 0)
   ).length;
 
-  const totalQuantity = safeInventory.reduce((sum, item) => 
+  const totalQuantity = safeInventory.reduce((sum, item) =>
     sum + (Number(item.quantity) || 0), 0
   );
-  
-  const lowStockItems = safeInventory.filter(item => 
-    item.itemName && 
+
+  const lowStockItems = safeInventory.filter(item =>
+    item.itemName &&
     Number(item.quantity || 0) <= Number(item.reorderThreshold || 0)
   );
 
@@ -165,19 +165,47 @@ export default function CreateProduct() {
     width: "80%"
   };
 
+  const primaryButtonStyle = {
+    background: "linear-gradient(135deg, #0ea5e9, #22c55e)",
+    color: "white",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: "999px",
+    fontSize: "14px",
+    fontWeight: "700",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+    transition: "all 0.2s ease"
+  };
+
   if (loading) return <div style={{ padding: '40px' }}>Syncing Inventory...</div>;
 
   return (
     <div className="printable-area" style={{ backgroundColor: "#F8FAFC", minHeight: "100vh", padding: "40px" }}>
-      
+
       <div style={{ marginBottom: "30px", display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
-          <button onClick={() => navigate("/dashboard")} style={{ background: 'none', border: 'none', color: "#64748b", cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <LayoutDashboard size={18} /> Dashboard
+          <button
+            onClick={() => navigate("/dashboard")}
+            style={primaryButtonStyle}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "scale(1.06)";
+              e.currentTarget.style.boxShadow = "0 6px 18px rgba(0,0,0,0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "scale(1)";
+              e.currentTarget.style.boxShadow = "0 4px 14px rgba(0,0,0,0.15)";
+            }}
+          >
+            <LayoutDashboard size={16} />
+            Dashboard
           </button>
           <h1 style={{ margin: 0, color: BRAND_DARK, fontSize: '32px', fontWeight: '800' }}>Inventory</h1>
         </div>
-        
+
         <div style={{ display: 'flex', gap: '12px' }} className="no-print">
           <button onClick={() => window.print()} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', backgroundColor: 'white', fontWeight: '600', cursor: 'pointer' }}>
             <Printer size={18} /> Print
@@ -206,19 +234,19 @@ export default function CreateProduct() {
 
       <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: "30px" }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          
+
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
             <button
               onClick={() => {
                 setInventory(prev => [
-                  { 
-                    _id: "temp-" + Date.now(), 
-                    itemName: "",           
-                    quantity: "",          
-                    reorderThreshold: ""   
-                    }, 
-                    ...prev
-                  ]);
+                  {
+                    _id: "temp-" + Date.now(),
+                    itemName: "",
+                    quantity: "",
+                    reorderThreshold: ""
+                  },
+                  ...prev
+                ]);
               }}
               style={{ padding: "10px 16px", borderRadius: "10px", border: "none", backgroundColor: BRAND_DARK, color: "white", fontWeight: "600", cursor: "pointer" }}
             >
@@ -248,82 +276,82 @@ export default function CreateProduct() {
                   return (
                     <tr key={item._id} style={{ borderTop: '1px solid #F1F5F9' }}>
                       <td style={{ padding: '18px 24px', fontWeight: '600', color: BRAND_DARK }}>
-                         {editingCell?.id === item._id && editingCell?.field === "itemName" ? (
-                            <input
-                              autoFocus
-                              value={editValue} 
-                              onChange={(e) => setEditValue(e.target.value)}
-                              onBlur={() => handleSaveEdit(item._id, "itemName", item.itemName)}
-                              onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(item._id, "itemName", item.itemName)}
-                              style={{ ...inputStyle, textAlign: 'left', width: '100%' }}
-                              />
-                          ) : (
-                            <span 
-                              onClick={() => { 
-                                setEditingCell({ id: item._id, field: "itemName" }); 
-                                setEditValue(item.itemName || "");
-                              }} 
-                              style={{ cursor: 'pointer' }}
-                            >
-                              {item.itemName || "Click to name item..."} 
-                            </span>
-                          )}
+                        {editingCell?.id === item._id && editingCell?.field === "itemName" ? (
+                          <input
+                            autoFocus
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onBlur={() => handleSaveEdit(item._id, "itemName", item.itemName)}
+                            onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(item._id, "itemName", item.itemName)}
+                            style={{ ...inputStyle, textAlign: 'left', width: '100%' }}
+                          />
+                        ) : (
+                          <span
+                            onClick={() => {
+                              setEditingCell({ id: item._id, field: "itemName" });
+                              setEditValue(item.itemName || "");
+                            }}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            {item.itemName || "Click to name item..."}
+                          </span>
+                        )}
                       </td>
                       <td style={{ textAlign: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                          <button onClick={() => handleUpdateQty(item._id, item.quantity, -1)} style={{ padding: '2px', borderRadius: '4px', border: '1px solid #CBD5E1', cursor: 'pointer' }}><Minus size={12}/></button>
+                          <button onClick={() => handleUpdateQty(item._id, item.quantity, -1)} style={{ padding: '2px', borderRadius: '4px', border: '1px solid #CBD5E1', cursor: 'pointer' }}><Minus size={12} /></button>
                           {editingCell?.id === item._id && editingCell?.field === "quantity" ? (
                             <input
                               autoFocus
-                              value={editValue} 
+                              value={editValue}
                               onChange={(e) => setEditValue(e.target.value)}
                               onBlur={() => handleSaveEdit(item._id, "quantity", item.quantity)}
                               onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(item._id, "quantity", item.quantity)}
                               style={inputStyle}
                             />
                           ) : (
-                            <span 
-                              onClick={() => { setEditingCell({ id: item._id, field: "quantity" }); setEditValue(item.quantity || ""); }} 
+                            <span
+                              onClick={() => { setEditingCell({ id: item._id, field: "quantity" }); setEditValue(item.quantity || ""); }}
                               style={{ minWidth: '30px', fontWeight: '800', color: isLow ? '#EF4444' : BRAND_DARK, cursor: 'pointer' }}
                             >
                               {item.quantity === "" ? "" : item.quantity}
                             </span>
                           )}
-                          <button onClick={() => handleUpdateQty(item._id, item.quantity, 1)} style={{ padding: '2px', borderRadius: '4px', border: '1px solid #CBD5E1', cursor: 'pointer' }}><Plus size={12}/></button>
+                          <button onClick={() => handleUpdateQty(item._id, item.quantity, 1)} style={{ padding: '2px', borderRadius: '4px', border: '1px solid #CBD5E1', cursor: 'pointer' }}><Plus size={12} /></button>
                         </div>
                       </td>
                       <td style={{ textAlign: 'center' }}>
-                          {editingCell?.id === item._id && editingCell?.field === "reorderThreshold" ? (
-                            <input
-                              autoFocus
-                              value={editValue}
-                              onChange={(e) => setEditValue(e.target.value)}
-                              onBlur={() => handleSaveEdit(item._id, "reorderThreshold", item.reorderThreshold)}
-                              onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(item._id, "reorderThreshold", item.reorderThreshold)}
-                              style={inputStyle}
-                              />
-                          ) : (
-                            <span 
-                              onClick={() => { 
-                                setEditingCell({ id: item._id, field: "reorderThreshold" }); 
-                                setEditValue(item.reorderThreshold || "");
-                              }} 
-                              style={{ color: '#64748B', fontWeight: '600', cursor: 'pointer' }}
-                            >
-                              {item.reorderThreshold === "" ? "" : item.reorderThreshold}
-                            </span>
-                          )}
+                        {editingCell?.id === item._id && editingCell?.field === "reorderThreshold" ? (
+                          <input
+                            autoFocus
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onBlur={() => handleSaveEdit(item._id, "reorderThreshold", item.reorderThreshold)}
+                            onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(item._id, "reorderThreshold", item.reorderThreshold)}
+                            style={inputStyle}
+                          />
+                        ) : (
+                          <span
+                            onClick={() => {
+                              setEditingCell({ id: item._id, field: "reorderThreshold" });
+                              setEditValue(item.reorderThreshold || "");
+                            }}
+                            style={{ color: '#64748B', fontWeight: '600', cursor: 'pointer' }}
+                          >
+                            {item.reorderThreshold === "" ? "" : item.reorderThreshold}
+                          </span>
+                        )}
                       </td>
                       <td style={{ textAlign: 'center' }}>
                         {!isEmpty && (
-                          <button 
-                            style={{ background: 'none', border: 'none', color: BRAND_ACTION, cursor: 'pointer' }} 
+                          <button
+                            style={{ background: 'none', border: 'none', color: BRAND_ACTION, cursor: 'pointer' }}
                             onClick={() => window.open(`https://www.google.com/search?tbm=shop&q=${encodeURIComponent(item.itemName + " bulk discount")}`, "_blank")}
-                            >
-                              <ExternalLink size={18} />
-                            </button>
-                          )}
-                        </td>
+                          >
+                            <ExternalLink size={18} />
+                          </button>
+                        )}
+                      </td>
                       <td style={{ textAlign: 'center' }}>
                         <button onClick={() => handleDelete(item._id)} style={{ color: "#EF4444", border: "none", background: "none", cursor: "pointer" }}>
                           <Trash2 size={18} />
