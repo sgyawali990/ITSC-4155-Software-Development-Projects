@@ -3,11 +3,18 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
+  // Add a confirm password state variable to match the provided instruction screenshot.
+  const [confirmPassword, setConfirmPassword] = useState("");
   const { token } = useParams();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate that passwords match before submission
+    if (password !== confirmPassword) {
+      return alert("Passwords do not match. Please try again.");
+    }
 
     try {
       const res = await fetch(`http://localhost:4000/auth/reset-password/${token}`, {
@@ -24,7 +31,8 @@ export default function ResetPassword() {
         return alert(data.error || "Reset failed");
       }
 
-      alert("Password updated successfully");
+      // Improve success feel in the alert text with an emoji 🚀
+      alert("Password updated successfully 🚀");
       navigate("/");
     } catch (err) {
       console.error("Reset password error:", err);
@@ -73,7 +81,8 @@ export default function ResetPassword() {
           fontSize: "20px",
           fontWeight: "bold"
         }}>
-          iQ
+          {/* Brand casing fixed, changed "iQ" to "InvQ" */}
+          InvQ
         </div>
 
         <h2 style={{ color: "#0a3d34", margin: "0 0 10px 0" }}>New Password</h2>
@@ -90,12 +99,22 @@ export default function ResetPassword() {
             style={inputStyle}
             required
           />
+          {/* Added matching password confirmation input field */}
+          <input
+            type="password"
+            placeholder="Confirm new password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            style={inputStyle}
+            required
+          />
           <button 
             type="submit" 
             style={{ 
               width: "100%", 
               padding: "12px", 
-              backgroundColor: "#0a3d34", 
+              // Premium same gradient upgrade for button consistency
+              background: "linear-gradient(135deg, #0a3d34, #065f46)",
               color: "white", 
               border: "none", 
               borderRadius: "8px", 

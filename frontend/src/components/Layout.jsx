@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
-import Sidebar from './sidebar';
+import Sidebar from './Sidebar';
 
 const Layout = ({ children }) => {
-  // This "state" controls if the sidebar is visible
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', position: 'relative' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', position: 'relative', width: '100vw', overflowX: 'hidden' }}>
       
-      {/* 1. THE SIDEBAR: It only shows up when isOpen is true */}
+      {/* 1. SIDEBAR */}
       <Sidebar isOpen={isOpen} toggleSidebar={() => setIsOpen(false)} />
       
-      <div style={{ flex: 1, backgroundColor: '#f8fafc', minWidth: 0 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         
-        {/* 2. THE TOP BAR: This holds your "Menu" toggle button */}
+        {/* 2. TOP BAR */}
         <header style={{ 
           padding: '15px 25px', 
           backgroundColor: 'white', 
           display: 'flex', 
           alignItems: 'center',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.05)' 
+          boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+          zIndex: 10 // Stays above content
         }}>
           {!isOpen && (
             <button 
@@ -30,25 +30,25 @@ const Layout = ({ children }) => {
                 border: 'none', 
                 cursor: 'pointer',
                 marginRight: '20px',
-                color: '#0a3d34' // Matching your dark green theme
+                color: '#0a3d34' 
               }}
             >
               ☰
             </button>
           )}
-          <h2 style={{ fontSize: '1.2rem', margin: 0, color: '#334155' }}>
+          <h2 style={{ fontSize: '1.2rem', margin: 0, color: '#334155', fontWeight: '800' }}>
             InvQ Management
           </h2>
         </header>
 
-        {/* 3. THE CONTENT: This is where Dashboard, Alerts, etc. will render */}
-        <main style={{ padding: '30px' }}>
+        {/* 3. THE CONTENT: Removed padding and bg color here */}
+        <main style={{ flex: 1, position: 'relative' }}>
           {children}
         </main>
 
       </div>
 
-      {/* 4. THE OVERLAY: Dims the background when the menu is open */}
+      {/* 4. OVERLAY */}
       {isOpen && (
         <div 
           onClick={() => setIsOpen(false)}
@@ -56,7 +56,7 @@ const Layout = ({ children }) => {
             position: 'fixed',
             top: 0, left: 0, right: 0, bottom: 0,
             backgroundColor: 'rgba(0,0,0,0.4)',
-            zIndex: 999 // Sits just below the Sidebar
+            zIndex: 999 
           }}
         />
       )}

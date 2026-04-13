@@ -6,9 +6,7 @@ import {
   AlertTriangle,
   TrendingUp,
   ArrowUp,
-  Search,
-  Download,
-  Bell
+  Download
 } from "lucide-react";
 
 const TEXT_DARK = "#0C1D26";
@@ -39,66 +37,92 @@ export default function Dashboard() {
     fetchData();
   }, [token]);
 
-  const lowStockItems = inventory.filter(
+  /* ------------------ 🔥 LOGIC: VALID ITEMS & EXPORT ------------------ */
+  const validItems = inventory.filter(
+    item => item.itemName && item.itemName.trim() !== ""
+  );
+
+  const lowStockItems = validItems.filter(
     item => Number(item.quantity || 0) <= Number(item.reorderThreshold || 0)
   );
+
+  const totalItems = validItems.length;
+
+  const inventoryHealth =
+    totalItems === 0
+      ? "—"
+      : `${Math.round(((totalItems - lowStockItems.length) / totalItems) * 100)}%`;
+
+  const exportCSV = () => {
+    const headers = "Item Name,Quantity,Threshold\n";
+    const rows = validItems
+      .map(item => `${item.itemName},${item.quantity},${item.reorderThreshold}`)
+      .join("\n");
+    const blob = new Blob([headers + rows], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "dashboard_inventory.csv";
+    a.click();
+  };
 
   if (loading) return <div style={{ padding: "40px" }}>Loading Dashboard...</div>;
 
   return (
     <div
       style={{
+        width: "100vw",
+        minHeight: "100vh",
         backgroundColor: "#F8FAFC",
         backgroundImage:
           "radial-gradient(at 0% 0%, hsla(187, 92%, 92%, 1) 0px, transparent 50%), radial-gradient(at 100% 100%, hsla(199, 89%, 88%, 1) 0px, transparent 50%)",
-        minHeight: "100vh",
+        overflowX: "hidden",
         fontFamily: '"Inter", sans-serif'
       }}
     >
-      {/* TOP NAV */}
+      {/* TOP NAV: Title updated to "Dashboard" */}
       <div style={topNavStyle}>
-        <h2 style={navTitleStyle}>InvQ Management Console</h2>
-        <button
-          onClick={() => navigate("/inventory")}
-          style={manageButtonStyle}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.05)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-          }}
-        >
-          Manage Inventory
-        </button>
+        <h2 style={navTitleStyle}>Dashboard</h2>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          {/* Note: In topNav, buttons now share this space */}
+        </div>
       </div>
 
       <div style={{ padding: "40px", maxWidth: "1200px", margin: "0 auto" }}>
-        {/* HEADER */}
+
+        {/* HEADER: Manage button removed - only Export remains */}
         <div style={headerStyle}>
           <div>
             <h1 style={titleStyle}>Welcome, {username}.</h1>
             <p style={subtitleStyle}>Reports & Analytics Overview</p>
           </div>
-          <button style={refButtonStyle}>
-            Export Data <Download size={16} />
-          </button>
+          <div style={{ display: "flex", gap: "12px" }}>
+            {/* Manage Inventory Button was here — DELETED */}
+            <button
+              style={refButtonStyle}
+              onClick={exportCSV}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F8FAFC")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}
+            >
+              Export Data <Download size={16} />
+            </button>
+          </div>
         </div>
 
         {/* SUMMARY CUBES */}
         <div style={cubeGrid}>
-          {/* TOTAL ITEMS */}
           <div style={cubeStyle}>
             <div style={{ ...iconContainerStyle, background: "#ECFBF0" }}>
               <Package size={22} color={BRAND_ICON} />
             </div>
             <div>
               <p style={cubeLabelStyle}>Total Items</p>
-              <h2 style={cubeValueStyle}>{inventory.length}</h2>
+              <h2 style={cubeValueStyle}>{totalItems}</h2>
             </div>
             <ArrowUp size={20} color={BRAND_ICON} style={{ marginLeft: "auto" }} />
           </div>
 
-          {/* LOW STOCK */}
           <div style={{ ...cubeStyle, cursor: "pointer" }} onClick={() => navigate("/inventory")}>
             <div style={{ ...iconContainerStyle, background: "#FFF0F0" }}>
               <AlertTriangle size={22} color="#EF4444" />
@@ -111,126 +135,105 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* INVENTORY HEALTH */}
           <div style={cubeStyle}>
             <div style={{ ...iconContainerStyle, background: "#E8FAFC" }}>
               <TrendingUp size={22} color="#22D3EE" />
             </div>
             <div>
               <p style={cubeLabelStyle}>Inventory Health</p>
-              <h2 style={cubeValueStyle}>
-                {inventory.length === 0
-                  ? "—"
-                  : `${Math.round(
-                    ((inventory.length - lowStockItems.length) / inventory.length) * 100
-                  )}%`}
-              </h2>
+              <h2 style={cubeValueStyle}>{inventoryHealth}</h2>
             </div>
           </div>
         </div>
 
-        {/* 🚀 INVENTORY PULSE BARS */}
+        {/* INVENTORY OVERVIEW: CLEAN HEADER + HOVER BUTTON + VERTICAL BARS */}
         <div style={graphContainerStyle}>
-          <h3 style={sectionTitle}>Inventory Overview</h3>
 
-          {inventory.length === 0 ? (
+          {/* HEADER ROW (TITLE + BUTTON) */}
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "24px"
+          }}>
+            <h3 style={sectionTitle}>Inventory Overview</h3>
+
+            <button
+              onClick={() => navigate("/inventory")}
+              style={manageButtonStyle}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 6px 20px rgba(34, 197, 94, 0.4)";
+                e.currentTarget.style.filter = "brightness(1.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(34, 197, 94, 0.2)";
+                e.currentTarget.style.filter = "brightness(1)";
+              }}
+            >
+              Manage Inventory
+            </button>
+          </div>
+
+          {validItems.length === 0 ? (
             <p style={{ color: "#64748b" }}>No data to display.</p>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              {inventory.map((item, i) => {
+            <div style={{
+              display: "flex",
+              alignItems: "flex-end",
+              gap: "24px",
+              height: "240px",
+              padding: "10px 0",
+              borderBottom: "1px solid #E2E8F0"
+            }}>
+              {validItems.map((item, i) => {
                 const qty = Number(item.quantity || 0);
                 const threshold = Number(item.reorderThreshold || 0);
-                const maxQty = Math.max(...inventory.map(i => Number(i.quantity || 1)));
+                const maxQty = Math.max(...validItems.map(i => Number(i.quantity || 1)));
 
-                const percent = (qty / maxQty) * 100;
+                // Fixed pixel resolution for visual stability
+                const barHeight = (qty / maxQty) * 180;
 
                 let color = "#22C55E";
-                let glow = "rgba(34,197,94,0.4)";
-                let label = "Healthy";
+                let glow = "rgba(34,197,94,0.3)";
 
                 if (qty === 0) {
                   color = "#EF4444";
-                  glow = "rgba(239,68,68,0.5)";
-                  label = "Out of stock";
+                  glow = "rgba(239,68,68,0.3)";
                 } else if (qty <= threshold) {
                   color = "#F97316";
-                  glow = "rgba(249,115,22,0.5)";
-                  label = "Low stock";
+                  glow = "rgba(249,115,22,0.3)";
                 }
 
                 return (
-                  <div key={i}>
-                    {/* HEADER */}
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: "6px",
-                        alignItems: "center"
-                      }}
-                    >
-                      <div>
-                        <span style={{ fontWeight: "800", color: TEXT_DARK }}>
-                          {item.itemName}
-                        </span>
-                        <span
-                          style={{
-                            marginLeft: "10px",
-                            fontSize: "12px",
-                            color
-                          }}
-                        >
-                          {label}
-                        </span>
-                      </div>
-
-                      <span
-                        style={{
-                          fontWeight: "900",
-                          color,
-                          fontSize: "16px"
-                        }}
-                      >
-                        {qty}
-                      </span>
+                  <div key={i} style={{
+                    flex: 1,
+                    textAlign: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-end"
+                  }}>
+                    <div style={{ fontSize: "12px", fontWeight: "800", color, marginBottom: "6px" }}>
+                      {qty}
                     </div>
-
-                    {/* BAR BACKGROUND */}
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "16px",
-                        background: "#E5E7EB",
-                        borderRadius: "999px",
-                        overflow: "hidden",
-                        position: "relative"
-                      }}
-                    >
-                      {/* MAIN BAR */}
-                      <div
-                        style={{
-                          width: `${percent}%`,
-                          height: "100%",
-                          background: color,
-                          borderRadius: "999px",
-                          transition: "width 0.8s ease",
-                          boxShadow: `0 0 12px ${glow}`
-                        }}
-                      />
-
-                      {/* PULSE OVERLAY */}
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          height: "100%",
-                          width: `${percent}%`,
-                          background: `linear-gradient(90deg, transparent, ${glow}, transparent)`,
-                          opacity: 0.4,
-                          filter: "blur(6px)"
-                        }}
-                      />
+                    <div style={{
+                      height: `${Math.max(barHeight, 6)}px`,
+                      background: color,
+                      borderRadius: "8px 8px 0 0",
+                      boxShadow: `0 4px 12px ${glow}`,
+                      transition: "all 0.3s ease"
+                    }} />
+                    <div style={{
+                      marginTop: "10px",
+                      fontSize: "12px",
+                      fontWeight: "800",
+                      color: TEXT_DARK,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis"
+                    }}>
+                      {item.itemName}
                     </div>
                   </div>
                 );
@@ -239,165 +242,167 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* ALERTS */}
-        <div style={alertsContainer}>
-          <div style={alertsHeader}>
-            <h3 style={alertsTitle}>Critical Alerts</h3>
-            <span style={alertBadge}>Action Required</span>
+        {/* CONDITIONAL ALERTS */}
+        {lowStockItems.length > 0 && (
+          <div style={alertsContainer}>
+            <div style={alertsHeader}>
+              <h3 style={alertsTitle}>Critical Alerts</h3>
+              <span style={alertBadge}>Action Required</span>
+            </div>
+            <AlertsPanel inventory={validItems} />
           </div>
-          <AlertsPanel inventory={inventory} />
-        </div>
+        )}
       </div>
     </div>
   );
 }
 
-/* ---------- STYLES ---------- */
+/* ------------------ STYLES ------------------ */
 
 const topNavStyle = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "12px 40px",
-  backgroundColor: "rgba(255,255,255,0.8)",
-  backdropFilter: "blur(10px)",
-  borderBottom: "1px solid rgba(0,0,0,0.05)"
+  padding: "16px 40px",
+  borderBottom: "1px solid #e5e7eb",
+  background: "#ffffff"
 };
 
 const navTitleStyle = {
-  margin: 0,
-  fontSize: "14px",
-  fontWeight: "700",
-  color: TEXT_DARK
+  fontWeight: "900",
+  fontSize: "20px",
+  color: TEXT_DARK,
+  letterSpacing: "-0.02em"
 };
 
-const searchBoxStyle = {
-  border: "1px solid #DEDEDE",
-  padding: "6px 12px",
-  borderRadius: "8px",
-  background: "white"
+const manageButtonStyle = {
+  background: "linear-gradient(135deg, #22C55E, #06B6D4)",
+  border: "none",
+  color: "white",
+  padding: "10px 22px",
+  borderRadius: "12px",
+  fontWeight: "800",
+  cursor: "pointer",
+  transition: "transform 0.2s ease",
+  boxShadow: "0 4px 12px rgba(34, 197, 94, 0.2)"
 };
 
 const headerStyle = {
   display: "flex",
   justifyContent: "space-between",
-  marginBottom: "30px",
-  alignItems: "flex-end"
+  alignItems: "center",
+  marginBottom: "30px"
 };
 
 const titleStyle = {
-  margin: 0,
+  fontSize: "36px",
+  fontWeight: "900",
   color: TEXT_DARK,
-  fontSize: "32px",
-  fontWeight: "900"
+  letterSpacing: "-0.03em"
 };
 
 const subtitleStyle = {
-  margin: "5px 0 0 0",
-  color: "#64748b"
+  color: "#64748b",
+  fontSize: "16px",
+  fontWeight: "500"
+};
+
+const refButtonStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  border: "1px solid #e5e7eb",
+  background: "#fff",
+  padding: "10px 18px",
+  borderRadius: "12px",
+  fontWeight: "700",
+  color: TEXT_DARK,
+  cursor: "pointer",
+  transition: "background-color 0.2s ease"
 };
 
 const cubeGrid = {
   display: "grid",
-  gridTemplateColumns: "1fr 1fr 1fr",
+  gridTemplateColumns: "repeat(3, 1fr)",
   gap: "24px",
   marginBottom: "30px"
 };
 
 const cubeStyle = {
-  backgroundColor: "white",
-  padding: "24px",
-  borderRadius: "20px",
   display: "flex",
   alignItems: "center",
-  gap: "15px",
-  boxShadow: "0 10px 20px rgba(0,0,0,0.03)"
-};
-
-const iconContainerStyle = {
-  padding: "12px",
-  borderRadius: "14px"
+  gap: "16px",
+  background: "#fff",
+  padding: "24px",
+  borderRadius: "20px",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.03)",
+  transition: "transform 0.2s ease"
 };
 
 const cubeLabelStyle = {
-  margin: 0,
-  fontSize: "12px",
+  fontSize: "13px",
+  fontWeight: "700",
   color: "#64748b",
-  fontWeight: "700"
+  textTransform: "uppercase",
+  letterSpacing: "0.05em"
 };
 
 const cubeValueStyle = {
-  margin: "2px 0 0 0",
-  fontSize: "26px",
+  fontSize: "28px",
   fontWeight: "900",
-  color: TEXT_DARK
+  color: TEXT_DARK,
+  lineHeight: "1"
+};
+
+const iconContainerStyle = {
+  width: "48px",
+  height: "48px",
+  borderRadius: "14px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center"
 };
 
 const graphContainerStyle = {
-  backgroundColor: "white",
-  padding: "35px",
+  background: "#fff",
+  padding: "30px",
   borderRadius: "24px",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.03)",
   marginBottom: "30px"
 };
 
 const sectionTitle = {
-  margin: 0,
-  fontSize: "18px",
-  fontWeight: "800",
-  marginBottom: "20px",
+  fontSize: "20px",
+  fontWeight: "900",
+  marginBottom: "24px",
   color: TEXT_DARK
 };
 
 const alertsContainer = {
-  backgroundColor: "white",
-  padding: "35px",
+  background: "#fff",
+  padding: "30px",
   borderRadius: "24px",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.05)"
+  boxShadow: "0 10px 25px rgba(0,0,0,0.03)"
 };
 
 const alertsHeader = {
   display: "flex",
   justifyContent: "space-between",
+  alignItems: "center",
   marginBottom: "20px"
 };
 
 const alertsTitle = {
-  margin: 0,
+  fontWeight: "900",
   fontSize: "20px",
-  fontWeight: "800",
   color: TEXT_DARK
 };
 
 const alertBadge = {
   background: "#FEE2E2",
   color: "#EF4444",
-  padding: "4px 12px",
-  borderRadius: "20px",
-  fontSize: "12px",
-  fontWeight: "700"
-};
-
-const refButtonStyle = {
-  background: "white",
-  border: "1px solid #E2E8F0",
-  padding: "10px 20px",
-  borderRadius: "10px",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  gap: "8px"
-};
-
-const manageButtonStyle = {
-  background: "linear-gradient(135deg, #0ea5e9, #22c55e)",
-  color: "white",
-  border: "none",
-  padding: "10px 20px",
+  padding: "6px 14px",
   borderRadius: "999px",
-  fontSize: "14px",
-  fontWeight: "700",
-  cursor: "pointer",
-  boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
-  transition: "all 0.2s ease"
+  fontSize: "13px",
+  fontWeight: "800"
 };

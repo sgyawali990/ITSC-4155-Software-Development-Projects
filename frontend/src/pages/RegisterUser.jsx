@@ -33,7 +33,9 @@ export default function RegisterUser() {
     borderRadius: "8px",
     border: "1px solid #cbd5e1",
     fontSize: "16px",
-    boxSizing: "border-box"
+    boxSizing: "border-box",
+    outline: "none",
+    transition: "all 0.2s ease"
   };
 
   return (
@@ -42,17 +44,30 @@ export default function RegisterUser() {
       justifyContent: "center", 
       alignItems: "center", 
       minHeight: "100vh",
-      backgroundColor: "#f1f5f9"
+      background: `
+        radial-gradient(circle at top left, #dbeafe, transparent 40%),
+        radial-gradient(circle at bottom right, #cffafe, transparent 40%),
+        #f8fafc
+      `
     }}>
-      <div style={{ 
-        width: "100%", 
-        maxWidth: "400px", 
-        backgroundColor: "white", 
-        padding: "40px", 
-        borderRadius: "16px", 
-        boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-        textAlign: "center" 
-      }}>
+      <div 
+        style={{ 
+          width: "100%", 
+          maxWidth: "400px", 
+          backgroundColor: "white", 
+          padding: "40px", 
+          borderRadius: "16px", 
+          boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
+          textAlign: "center",
+          transition: "all 0.3s ease" 
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = "translateY(-4px)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "translateY(0)";
+        }}
+      >
         {/* Brand Logo */}
         <div style={{ 
           backgroundColor: "#0a3d34", 
@@ -82,6 +97,14 @@ export default function RegisterUser() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             style={inputStyle}
+            onFocus={(e) => {
+              e.target.style.border = "1px solid #22c55e";
+              e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.2)";
+            }}
+            onBlur={(e) => {
+              e.target.style.border = "1px solid #cbd5e1";
+              e.target.style.boxShadow = "none";
+            }}
             required 
           />
           <input
@@ -90,6 +113,14 @@ export default function RegisterUser() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             style={inputStyle}
+            onFocus={(e) => {
+              e.target.style.border = "1px solid #22c55e";
+              e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.2)";
+            }}
+            onBlur={(e) => {
+              e.target.style.border = "1px solid #cbd5e1";
+              e.target.style.boxShadow = "none";
+            }}
             required
           />
           <input
@@ -98,6 +129,14 @@ export default function RegisterUser() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             style={inputStyle}
+            onFocus={(e) => {
+              e.target.style.border = "1px solid #22c55e";
+              e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.2)";
+            }}
+            onBlur={(e) => {
+              e.target.style.border = "1px solid #cbd5e1";
+              e.target.style.boxShadow = "none";
+            }}
             required
           />
           <button 
@@ -105,14 +144,24 @@ export default function RegisterUser() {
             style={{ 
               width: "100%", 
               padding: "12px", 
-              backgroundColor: "#0a3d34", 
+              background: "linear-gradient(135deg, #0a3d34, #065f46)",
               color: "white", 
               border: "none", 
               borderRadius: "8px", 
               fontWeight: "bold",
               fontSize: "16px",
               cursor: "pointer",
-              marginBottom: "20px"
+              marginBottom: "20px",
+              boxShadow: "0 6px 14px rgba(10,61,52,0.25)",
+              transition: "all 0.25s ease"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 10px 22px rgba(10,61,52,0.35)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 6px 14px rgba(10,61,52,0.25)";
             }}
           >
             Register

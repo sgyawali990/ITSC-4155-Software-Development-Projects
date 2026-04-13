@@ -18,11 +18,14 @@ export default function ForgotPassword() {
       });
 
       const data = await res.json();
-      alert(data.message || data.error || "Request completed");
+      
+      if (res.ok) {
+        alert("Reset email sent successfully!");
+        navigate("/");
+      } else {
+        alert(data.message || data.error || "Request completed");
+      }
       setEmail("");
-      
-      
-      if (res.ok) navigate("/");
       
     } catch (err) {
       console.error("Forgot password error:", err);
@@ -71,7 +74,7 @@ export default function ForgotPassword() {
           fontSize: "20px",
           fontWeight: "bold"
         }}>
-          iQ
+          InvQ
         </div>
 
         <h2 style={{ color: "#0a3d34", margin: "0 0 10px 0" }}>Recover Password</h2>
@@ -93,7 +96,8 @@ export default function ForgotPassword() {
             style={{ 
               width: "100%", 
               padding: "12px", 
-              backgroundColor: "#0a3d34", 
+              // Premium same gradient upgrade for button consistency
+              background: "linear-gradient(135deg, #0a3d34, #065f46)",
               color: "white", 
               border: "none", 
               borderRadius: "8px", 

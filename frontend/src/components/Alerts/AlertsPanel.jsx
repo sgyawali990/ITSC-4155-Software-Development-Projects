@@ -8,10 +8,9 @@ const ORANGE_WARN = "#F97316";
 export default function Alerts() {
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false); // For button feedback
+  const [refreshing, setRefreshing] = useState(false);
   const token = localStorage.getItem("invq_token");
 
-  // 1. PULL FETCH INTO A FUNCTION 
   const fetchInventory = async () => {
     setRefreshing(true);
     try {
@@ -28,7 +27,6 @@ export default function Alerts() {
     }
   };
 
-  // 2. KEEP USEEFFECT FOR INITIAL LOAD
   useEffect(() => {
     fetchInventory();
   }, [token]);
@@ -44,12 +42,11 @@ export default function Alerts() {
   return (
     <div style={{ padding: "40px", maxWidth: "1200px", margin: "0 auto", fontFamily: 'Inter, sans-serif' }}>
       
-      {/* 3. UPDATED HEADER WITH REFRESH BUTTON */}
       <header style={{ 
         marginBottom: "32px", 
         display: 'flex', 
         alignItems: 'center', 
-        justifyContent: 'space-between', // Pushes refresh to the right
+        justifyContent: 'space-between',
         gap: '15px' 
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
@@ -66,7 +63,6 @@ export default function Alerts() {
           </div>
         </div>
 
-        {/* THE REFRESH BUTTON */}
         <button
           onClick={fetchInventory}
           disabled={refreshing}
@@ -102,17 +98,28 @@ export default function Alerts() {
             const isOutOfStock = Number(item.quantity) === 0;
             
             return (
-              <div key={item._id} style={{
-                backgroundColor: "white",
-                borderRadius: "24px",
-                padding: "24px",
-                boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.04)",
-                border: "1px solid #F1F5F9",
-                borderTop: `6px solid ${isOutOfStock ? RED_ALERT : ORANGE_WARN}`,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between'
-              }}>
+              <div key={item._id} 
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: "24px",
+                  padding: "24px",
+                  boxShadow: "0 10px 15px rgba(0, 0, 0, 0.04)",
+                  border: "1px solid #F1F5F9",
+                  borderTop: `6px solid ${isOutOfStock ? RED_ALERT : ORANGE_WARN}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  transition: "all 0.3s ease" // Smooth transition for the lift
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-6px)";
+                  e.currentTarget.style.boxShadow = "0 20px 30px rgba(0,0,0,0.08)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 10px 15px rgba(0,0,0,0.04)";
+                }}
+              >
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                     <span style={{ 
@@ -153,10 +160,11 @@ export default function Alerts() {
                       padding: "14px",
                       borderRadius: "12px",
                       border: "none",
-                      backgroundColor: BRAND_DARK,
+                      background: "linear-gradient(135deg, #083344, #065f46)",
                       color: "white",
                       fontWeight: "700",
-                      cursor: "pointer"
+                      cursor: "pointer",
+                      transition: "all 0.25s ease"
                     }}
                   >
                     Restock
@@ -175,7 +183,14 @@ export default function Alerts() {
                       backgroundColor: "white",
                       color: BRAND_DARK,
                       fontWeight: "700",
-                      cursor: "pointer"
+                      cursor: "pointer",
+                      transition: "background 0.2s ease"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#F1F5F9";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "white";
                     }}
                   >
                     Reorder
