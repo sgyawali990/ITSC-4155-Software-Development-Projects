@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AlertTriangle, PackageOpen, ArrowRight, ShoppingCart, Package } from "lucide-react";
+import { AlertTriangle, PackageOpen, Package, RefreshCw } from "lucide-react";
 
 const BRAND_DARK = "#083344";
 const RED_ALERT = "#EF4444";
@@ -8,22 +8,28 @@ const ORANGE_WARN = "#F97316";
 export default function Alerts() {
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false); // For button feedback
   const token = localStorage.getItem("invq_token");
 
+  // 1. PULL FETCH INTO A FUNCTION (Instructions Step 1)
+  const fetchInventory = async () => {
+    setRefreshing(true);
+    try {
+      const res = await fetch("http://localhost:4000/inventory", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (Array.isArray(data)) setInventory(data);
+    } catch (err) {
+      console.error("Alerts Fetch Error:", err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  // 2. KEEP USEEFFECT FOR INITIAL LOAD (Instructions Step 2)
   useEffect(() => {
-    const fetchInventory = async () => {
-      try {
-        const res = await fetch("http://localhost:4000/inventory", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (Array.isArray(data)) setInventory(data);
-      } catch (err) {
-        console.error("Alerts Fetch Error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchInventory();
   }, [token]);
 
@@ -37,18 +43,52 @@ export default function Alerts() {
 
   return (
     <div style={{ padding: "40px", maxWidth: "1200px", margin: "0 auto", fontFamily: 'Inter, sans-serif' }}>
-      <header style={{ marginBottom: "32px", display: 'flex', alignItems: 'center', gap: '15px' }}>
-        <div style={{ backgroundColor: BRAND_DARK, padding: '12px', borderRadius: '12px' }}>
-          <PackageOpen color="white" size={28} />
+      
+      {/* 3. UPDATED HEADER WITH REFRESH BUTTON (Instructions Step 3) */}
+      <header style={{ 
+        marginBottom: "32px", 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', // Pushes refresh to the right
+        gap: '15px' 
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <div style={{ backgroundColor: BRAND_DARK, padding: '12px', borderRadius: '12px' }}>
+            <PackageOpen color="white" size={28} />
+          </div>
+          <div>
+            <h1 style={{ color: BRAND_DARK, fontSize: "32px", fontWeight: "800", margin: 0 }}>
+              Attention Required
+            </h1>
+            <p style={{ color: "#64748b", margin: 0 }}>
+              {alerts.length} items need restocking
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 style={{ color: BRAND_DARK, fontSize: "32px", fontWeight: "800", margin: 0 }}>
-            Attention Required
-          </h1>
-          <p style={{ color: "#64748b", margin: 0 }}>
-            {alerts.length} items need restocking
-          </p>
-        </div>
+
+        {/* THE REFRESH BUTTON */}
+        <button
+          onClick={fetchInventory}
+          disabled={refreshing}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: "10px 16px",
+            borderRadius: "12px",
+            border: "1px solid #E2E8F0",
+            background: "white",
+            color: BRAND_DARK,
+            cursor: refreshing ? "not-allowed" : "pointer",
+            fontWeight: "700",
+            fontSize: "14px",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+            transition: "all 0.2s"
+          }}
+        >
+          <RefreshCw size={16} className={refreshing ? "animate-spin" : ""} />
+          {refreshing ? "Updating..." : "Refresh"}
+        </button>
       </header>
 
       {alerts.length === 0 ? (
@@ -105,26 +145,42 @@ export default function Alerts() {
                   </div>
                 </div>
 
-                <button 
-                  onClick={() => item.supplierUrl && window.open(item.supplierUrl, '_blank')}
-                  style={{
-                    marginTop: '20px',
-                    width: '100%',
-                    padding: '14px',
-                    borderRadius: '12px',
-                    border: 'none',
-                    backgroundColor: BRAND_DARK,
-                    color: "white",
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '10px'
-                  }}
-                >
-                  <ShoppingCart size={18} /> Restock Item <ArrowRight size={16} />
-                </button>
+                <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+                  <button
+                    onClick={() => window.location.href = "/inventory"}
+                    style={{
+                      flex: 1,
+                      padding: "14px",
+                      borderRadius: "12px",
+                      border: "none",
+                      backgroundColor: BRAND_DARK,
+                      color: "white",
+                      fontWeight: "700",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Restock
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const query = encodeURIComponent(`${item.itemName} bulk discount`);
+                      window.open(`https://www.google.com/search?tbm=shop&q=${query}`, "_blank");
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: "14px",
+                      borderRadius: "12px",
+                      border: "2px solid #E2E8F0",
+                      backgroundColor: "white",
+                      color: BRAND_DARK,
+                      fontWeight: "700",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Reorder
+                  </button>
+                </div>
               </div>
             );
           })}

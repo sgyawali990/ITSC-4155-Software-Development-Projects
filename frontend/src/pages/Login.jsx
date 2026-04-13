@@ -25,6 +25,8 @@ export default function Login() {
 
       if (res.ok && data.token) {
         localStorage.setItem("invq_token", data.token);
+        localStorage.setItem("invq_user_name", username);
+        localStorage.setItem("invq_user_email", data.user?.email || "");
 
         // Check if the user has a store/items already
         try {
@@ -90,7 +92,7 @@ export default function Login() {
           fontSize: "20px",
           fontWeight: "bold"
         }}>
-          iQ
+          InvQ
         </div>
 
         <h2 style={{ color: "#0a3d34", margin: "0 0 10px 0" }}>Welcome Back</h2>

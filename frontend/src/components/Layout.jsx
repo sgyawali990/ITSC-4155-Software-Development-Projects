@@ -37,7 +37,7 @@ const Layout = ({ children }) => {
             </button>
           )}
           <h2 style={{ fontSize: '1.2rem', margin: 0, color: '#334155' }}>
-            InvQuery Management
+            InvQ Management
           </h2>
         </header>
 

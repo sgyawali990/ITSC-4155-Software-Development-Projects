@@ -8,7 +8,6 @@ import {
   useLocation,
 } from "react-router-dom";
 
-
 import Login from "./pages/Login";
 import RegisterUser from "./pages/RegisterUser";
 import Dashboard from "./pages/Dashboard";
@@ -19,15 +18,14 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import AlertsPanel from "./components/Alerts/AlertsPanel";
 
-
-import Layout from "./components/layout"; 
+// Casing changed from layout to Layout
+import Layout from "./components/Layout"; 
 
 import "./index.css";
 
 const isLoggedIn = () => {
   return !!localStorage.getItem("invq_token");
 };
-
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -54,7 +52,6 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-       
         <Route
           path="/dashboard"
           element={
@@ -82,7 +79,6 @@ const App = () => {
           }
         />
 
-        
         <Route
           path="/create-store"
           element={
@@ -93,7 +89,8 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-         <Route
+
+        <Route
           path="/alerts"
           element={
             <ProtectedRoute>
@@ -102,13 +99,10 @@ const App = () => {
           }
         />
 
-        
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
 };
-
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);

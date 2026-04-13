@@ -67,7 +67,7 @@ export default function RegisterUser() {
           fontSize: "20px",
           fontWeight: "bold"
         }}>
-          iQ
+          InvQ
         </div>
 
         <h2 style={{ color: "#0a3d34", margin: "0 0 10px 0" }}>Create Account</h2>

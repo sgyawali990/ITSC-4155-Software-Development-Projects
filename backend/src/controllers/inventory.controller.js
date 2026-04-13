@@ -52,6 +52,7 @@ const checkAndNotify = async (item) => {
 
         await Alert.create({
           itemId: item._id,
+          user: item.user,
           message: `${item.itemName} is out of stock.`
         });
       }
@@ -129,30 +130,38 @@ const updateItem = async (req, res) => {
   try {
     const { itemName, quantity, reorderThreshold } = req.body;
 
-    // Basic Validation
-    if (!itemName || isNaN(quantity) || isNaN(reorderThreshold)) {
-      return res.status(400).json({ message: "Invalid input values" });
+    const item = await Item.findOne({ _id: req.params.id, user: req.user.id });
+    if (!item) {
+      return res.status(404).json({ message: "Item not found" });
     }
 
-    // Find the item
-    const item = await Item.findOne({ _id: req.params.id, user: req.user.id });
-    if (!item) return res.status(404).json({ message: "Item not found" });
+    if (itemName !== undefined) {
+      if (typeof itemName !== "string" || itemName.trim() === "") {
+        return res.status(400).json({ message: "itemName must be a non-empty string" });
+      }
+      item.itemName = itemName.trim();
+    }
 
-    // Apply changes (This is now strictly for LIVE updates)
-    item.itemName = itemName.trim();
-    item.quantity = Number(quantity);
-    item.reorderThreshold = Number(reorderThreshold);
-    
-    // Clear logs since this is a manual override/live edit
-    item.updateLogs = []; 
+    if (quantity !== undefined) {
+      if (isNaN(quantity) || Number(quantity) < 0) {
+        return res.status(400).json({ message: "quantity must be a number greater than or equal to 0" });
+      }
+      item.quantity = Number(quantity);
+    }
+
+    if (reorderThreshold !== undefined) {
+      if (isNaN(reorderThreshold) || Number(reorderThreshold) < 0) {
+        return res.status(400).json({ message: "reorderThreshold must be a number greater than or equal to 0" });
+      }
+      item.reorderThreshold = Number(reorderThreshold);
+    }
+
+    item.updateLogs = [];
 
     await item.save();
-    
-    // Trigger Alerts
     await checkAndNotify(item);
 
     return res.status(200).json(item);
-
   } catch (error) {
     console.error("UPDATE ERROR:", error);
     return res.status(500).json({ message: "Server error", error: error.message });
@@ -220,7 +229,7 @@ const getReorderSuggestions = async (req, res) => {
       .filter((item) => item.quantity <= item.reorderThreshold)
       .map((item) => ({
         itemId: item._id,
-        itemName: item.name,
+        itemName: item.itemName,
         quantity: item.quantity,
         reorderThreshold: item.reorderThreshold,
         suggestedReorder: Math.max(item.reorderThreshold * 2 - item.quantity, 1),

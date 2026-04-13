@@ -1,13 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-<ul>
-  <li><Link to="/inventory">Inventory</Link></li>
-  <li><Link to="/settings">Settings</Link></li>
-  <li><Link to="/create-product">Add Product</Link></li>
-  <li><Link to="/alerts">Alerts</Link></li>
-</ul>
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
+  // LOGOUT FUNCTION
+  const handleLogout = () => {
+    localStorage.removeItem("invq_token");
+    localStorage.removeItem("invq_user_name");
+    window.location.href = "/";
+  };
+
   const sidebarStyle = {
     width: isOpen ? '260px' : '0px', 
     height: '100vh',
@@ -55,9 +56,35 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
       <Link to="/dashboard" style={linkStyle} onClick={toggleSidebar}>Dashboard</Link>
       <Link to="/inventory" style={linkStyle} onClick={toggleSidebar}>Inventory</Link>
-
       <Link to="/alerts" style={linkStyle} onClick={toggleSidebar}>Alerts</Link>
       <Link to="/settings" style={linkStyle} onClick={toggleSidebar}>Settings</Link>
+
+    {/* LOGOUT BUTTON SECTION */}
+    <div style={{ 
+      marginTop: "auto", 
+      padding: "20px", 
+      paddingBottom: "50px" // This lifts it up from the bottom edge
+    }}>
+      <button
+        onClick={handleLogout}
+        style={{
+          width: "100%",
+          padding: "12px",
+          borderRadius: "10px",
+          border: "none",
+          backgroundColor: "#EF4444",
+          color: "white",
+          fontWeight: "700",
+          cursor: "pointer",
+          transition: "0.2s"
+        }}
+        onMouseOver={(e) => e.target.style.backgroundColor = "#dc2626"}
+        onMouseOut={(e) => e.target.style.backgroundColor = "#EF4444"}
+      >
+        Logout
+      </button>
+    </div>
+
     </div>
   );
 };

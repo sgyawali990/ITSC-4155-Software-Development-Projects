@@ -15,9 +15,23 @@ export default function Settings() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
   
+  const username = localStorage.getItem("invq_user_name") || "User";
+  const emailRaw = localStorage.getItem("invq_user_email") || "example@gmail.com";
+
+  const maskEmail = (email) => {
+    if (!email) return "";
+    const [name, domain] = email.split("@");
+    if (!name || !domain) return email;
+
+    const visible = name.slice(-3);
+    const masked = "*".repeat(Math.max(0, name.length - 3));
+
+    return masked + visible + "@" + domain;
+  };
+
   const [userData, setUserData] = useState({
-    name: "Kaitlyn Carrera",
-    email: "kaitlyncarrera12@gmail.com",
+  username: username,
+  email: maskEmail(emailRaw),
   });
 
   const cardStyle = {
@@ -129,11 +143,16 @@ export default function Settings() {
               <p style={{ color: '#64748B', marginBottom: '30px' }}>Manage your personal identification details.</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: '800', color: BRAND_DARK }}>FULL NAME</label>
-                  <input style={inputStyle} value={userData.name} readOnly />
+                  <label style={{ fontSize: '12px', fontWeight: '800', color: BRAND_DARK }}>USERNAME</label>
+                  <input 
+                    style={inputStyle} 
+                    value={userData.username} 
+                    readOnly 
+                  />
                 </div>
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: '800', color: BRAND_DARK }}>WORK EMAIL</label>
+                  {/* CHANGE EMAIL LABEL */}
+                  <label style={{ fontSize: '12px', fontWeight: '800', color: BRAND_DARK }}>EMAIL</label>
                   <input style={inputStyle} value={userData.email} readOnly />
                 </div>
               </div>

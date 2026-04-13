@@ -19,10 +19,13 @@ const GRAPH_DK_GRAY = "#848484";
 export default function Dashboard() {
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Now being used for navigation
   
-  // Dynamically pulls the name of the person logged in
-  const userName = localStorage.getItem("invq_user_name") || "User";
+  const username = localStorage.getItem("invq_user_name") || "User";
+  const firstName = localStorage.getItem("invq_first_name");
+  const displayName = firstName && firstName.trim() !== ""
+    ? firstName
+    : username;
   const token = localStorage.getItem("invq_token");
 
   useEffect(() => {
@@ -51,7 +54,6 @@ export default function Dashboard() {
   return (
     <div style={{ 
       backgroundColor: "#F8FAFC",
-      // Gradient background restored
       backgroundImage: `radial-gradient(at 0% 0%, hsla(187, 92%, 92%, 1) 0px, transparent 50%), radial-gradient(at 100% 100%, hsla(199, 89%, 88%, 1) 0px, transparent 50%)`,
       minHeight: "100vh", 
       fontFamily: '"Inter", sans-serif' 
@@ -70,11 +72,11 @@ export default function Dashboard() {
 
       <div style={{ padding: "40px", maxWidth: "1200px", margin: "0 auto" }}>
         
-        {/* 2. WELCOME HEADER (Dynamic User Name) */}
+        {/* 2. WELCOME HEADER */}
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "30px", alignItems: "flex-end" }}>
           <div>
             <h1 style={{ margin: 0, color: TEXT_DARK, fontSize: "32px", fontWeight: "900", letterSpacing: "-0.02em" }}>
-              Welcome, {userName}.
+              Welcome, {username}.
             </h1>
             <p style={{ margin: "5px 0 0 0", color: "#64748b", fontWeight: "500" }}>Reports & Analytics Overview</p>
           </div>
@@ -98,7 +100,11 @@ export default function Dashboard() {
             <ArrowUp size={20} color={BRAND_ICON} style={{ marginLeft: 'auto' }} />
           </div>
 
-          <div style={cubeStyle}>
+          {/* Low Stock Cube now navigates to Inventory */}
+          <div 
+            style={{ ...cubeStyle, cursor: "pointer" }} 
+            onClick={() => navigate("/inventory")}
+          >
             <div style={{ ...iconContainerStyle, background: "#FFF0F0" }}>
               <AlertTriangle size={22} color="#EF4444" />
             </div>
@@ -120,7 +126,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* 4. THE GRAPH SECTION (Visual match to your image) */}
+        {/* 4. THE GRAPH SECTION */}
         <div style={graphContainerStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '25px' }}>
             <h3 style={{ margin: 0, fontSize: '18px', color: TEXT_DARK, fontWeight: '800' }}>Inventory Trends</h3>
@@ -147,7 +153,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* 5. FOCUSED ALERTS PANEL (Remaining content) */}
+        {/* 5. FOCUSED ALERTS PANEL */}
         <div style={{ backgroundColor: "white", padding: "35px", borderRadius: "24px", boxShadow: "0 10px 30px rgba(0,0,0,0.05)" }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <h3 style={{ margin: 0, color: TEXT_DARK, fontSize: '20px', fontWeight: '800' }}>Critical Alerts</h3>
@@ -164,7 +170,7 @@ export default function Dashboard() {
 }
 
 // Styling Constants
-const cubeStyle = { backgroundColor: "white", padding: "24px", borderRadius: "20px", display: 'flex', alignItems: 'center', gap: '15px', boxShadow: "0 10px 20px rgba(0,0,0,0.03)", border: "1px solid white" };
+const cubeStyle = { backgroundColor: "white", padding: "24px", borderRadius: "20px", display: 'flex', alignItems: 'center', gap: '15px', boxShadow: "0 10px 20px rgba(0,0,0,0.03)", border: "1px solid white", transition: "transform 0.2s ease" };
 const iconContainerStyle = { padding: '12px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 const cubeLabelStyle = { margin: 0, fontSize: "12px", color: "#64748b", fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' };
 const cubeValueStyle = { margin: "2px 0 0 0", fontSize: "26px", fontWeight: "900", color: TEXT_DARK };
