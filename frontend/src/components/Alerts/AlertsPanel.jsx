@@ -155,7 +155,7 @@ export default function Alerts() {
 
                 <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
                   <button
-                    onClick={() => window.location.href = navigate("/inventory")}
+                    onClick={() => navigate("/inventory")}
                     style={{
                       flex: 1,
                       padding: "14px",
