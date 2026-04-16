@@ -37,7 +37,7 @@ export default function Dashboard() {
     fetchData();
   }, [token]);
 
-  /* ------------------ 🔥 LOGIC: VALID ITEMS & EXPORT ------------------ */
+  /* ------------------ LOGIC: VALID ITEMS & EXPORT ------------------ */
   const validItems = inventory.filter(
     item => item.itemName && item.itemName.trim() !== ""
   );

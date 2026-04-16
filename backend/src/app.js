@@ -12,9 +12,13 @@ const app = express();
 
 // Middleware
 app.use(helmet());
-app.use(cors({ 
-    origin: ["http://localhost:5173", "https://sgyawali990.github.io"],
-    credentials: true 
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://sgyawali990.github.io",
+    "https://sgyawali990.github.io/InvQ"
+  ],
+  credentials: true
 }));
 app.use(express.json());
 
