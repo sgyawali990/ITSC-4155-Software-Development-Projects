@@ -13,7 +13,7 @@ const sendLowStockAlert = async (userEmail, itemName, quantity) => {
         from: process.env.SMTP_USER,
         to: userEmail,
         subject: `Low Stock Alert: ${itemName}`,
-        text: `${itemName} is low on stock, current quantity: ${quantity}.`
+        text: `${itemName} is below reorder threshold of ${reorderThreshold}, current quantity: ${quantity}.`
     });
 };
 
